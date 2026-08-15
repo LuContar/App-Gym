@@ -3,126 +3,366 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LucasTech GYM</title>
+    <title>Lucas GYM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        redbrand: {
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { background-color: #0B1120; color: white; }
-        .bg-card { background-color: #1E293B; }
-        .text-accent { color: #3B82F6; }
-        .bg-accent { background-color: #3B82F6; }
+        body { background-color: #ffffff; color: #111827; }
         .scroll-hide::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="min-h-screen p-4 flex justify-center">
+<body class="min-h-screen bg-white text-slate-900 font-sans antialiased flex justify-center p-3 sm:p-5">
 
-    <main class="max-w-md w-full flex flex-col gap-6">
+    <main class="max-w-md w-full flex flex-col gap-5 pb-10">
         <!-- Header -->
-        <header class="flex justify-between items-center py-2">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold">LT</div>
-                <h1 class="font-bold text-xl tracking-wide">LucasTech <span class="text-blue-500">GYM</span></h1>
+        <header class="flex justify-between items-center py-2 border-b border-slate-200">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-red-600 flex items-center justify-center font-black text-white text-base shadow-md shadow-red-500/20">LG</div>
+                <div>
+                    <h1 class="font-black text-xl tracking-tight text-slate-900">Lucas <span class="text-red-600">GYM</span></h1>
+                    <span class="text-[10px] text-slate-500 font-medium">Seguimiento de Entrenamiento</span>
+                </div>
             </div>
-            <i class="fa-solid fa-gear text-slate-500"></i>
+            
+            <div class="flex items-center gap-2">
+                <button id="reset-btn" class="text-xs font-semibold text-slate-600 hover:text-red-600 transition-colors flex items-center gap-1.5 bg-slate-100 hover:bg-red-50 border border-slate-200 px-2.5 py-1.5 rounded-xl">
+                    <i class="fa-solid fa-rotate-right text-slate-500"></i>
+                    <span>Reset</span>
+                </button>
+            </div>
         </header>
 
-        <!-- Sección Principal -->
-        <section>
-            <h2 class="text-2xl font-bold mb-4">¿Qué toca hoy?</h2>
-            
-            <!-- Selector de Días -->
-            <div id="day-selector" class="flex gap-3 overflow-x-auto scroll-hide pb-2">
-                <!-- Se genera con JS -->
-            </div>
-        </section>
+        <!-- Navegación de Pestañas -->
+        <div class="flex bg-slate-100 p-1 rounded-2xl border border-slate-200/80">
+            <button id="tab-routine" onclick="switchTab('routine')" class="flex-1 py-2 rounded-xl text-xs font-bold transition-all bg-white text-slate-900 shadow-sm">
+                <i class="fa-solid fa-dumbbell mr-1 text-red-600"></i> Rutina
+            </button>
+            <button id="tab-calc" onclick="switchTab('calc')" class="flex-1 py-2 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-900">
+                <i class="fa-solid fa-calculator mr-1"></i> Calc Peso (1RM)
+            </button>
+        </div>
 
-        <!-- Progreso -->
-        <section class="bg-card p-5 rounded-3xl border border-slate-700/50">
-            <div class="flex justify-between items-end mb-2">
+        <!-- SECCIÓN 1: RUTINA Y ENTRENAMIENTO -->
+        <div id="section-routine" class="flex flex-col gap-5">
+            <!-- Selector de 7 Días -->
+            <section>
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">¿Qué toca hoy?</h2>
+                <div id="day-selector" class="flex gap-2 overflow-x-auto scroll-hide pb-1">
+                    <!-- Generado por JS -->
+                </div>
+            </section>
+
+            <!-- Banner de Progreso -->
+            <section class="bg-slate-900 text-white p-5 rounded-3xl shadow-xl relative overflow-hidden border border-slate-800">
+                <div class="flex justify-between items-end mb-2">
+                    <div>
+                        <h3 class="font-black text-2xl text-white tracking-wide" id="day-title">LUNES</h3>
+                        <p class="text-red-400 text-xs font-semibold uppercase tracking-wider mt-0.5" id="day-category">Pecho - Hombros - Tríceps</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="progress-text" class="text-2xl font-black text-white">0/0</span>
+                        <span class="text-slate-400 text-[10px] font-bold block tracking-widest">HECHOS</span>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-2.5 mt-3 overflow-hidden">
+                    <div id="progress-bar" class="bg-red-600 h-2.5 rounded-full transition-all duration-300 shadow-sm shadow-red-500" style="width: 0%"></div>
+                </div>
+            </section>
+
+            <!-- Lista de Ejercicios -->
+            <section class="flex flex-col gap-3">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ejercicios del día</span>
+                    <span id="pending-count" class="text-xs text-red-600 font-semibold">0 pendientes</span>
+                </div>
+                <div id="exercise-list" class="flex flex-col gap-3">
+                    <!-- Tarjetas dinámicas -->
+                </div>
+            </section>
+        </div>
+
+        <!-- SECCIÓN 2: CALCULADORA DE PESO (1RM) -->
+        <div id="section-calc" class="hidden flex flex-col gap-4">
+            <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm flex flex-col gap-4">
                 <div>
-                    <h3 class="font-bold text-lg" id="day-title">Día 01</h3>
-                    <p class="text-slate-400 text-sm">Tu entrenamiento</p>
+                    <h3 class="font-bold text-slate-900 text-lg">Calculadora de 1RM</h3>
+                    <p class="text-xs text-slate-500">Calculá tu Repetición Máxima estimada (Epley) y tus porcentajes de carga.</p>
                 </div>
-                <div class="text-right">
-                    <span id="progress-text" class="text-2xl font-black">0/0</span>
-                    <span class="text-slate-500 text-xs block">HECHOS</span>
-                </div>
-            </div>
-            <div class="w-full bg-slate-900 rounded-full h-2 mt-2">
-                <div id="progress-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-            </div>
-        </section>
 
-        <!-- Lista de Ejercicios -->
-        <div id="exercise-list" class="flex flex-col gap-3">
-            <!-- Se generan con JS -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Peso Levantado (kg)</label>
+                        <input id="calc-weight" type="number" placeholder="Ej: 80" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold focus:outline-none focus:border-red-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Repeticiones</label>
+                        <input id="calc-reps" type="number" placeholder="Ej: 8" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold focus:outline-none focus:border-red-600">
+                    </div>
+                </div>
+
+                <button onclick="calculate1RM()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-3 rounded-xl transition-colors shadow-md shadow-red-600/20">
+                    Calcular Cargas
+                </button>
+            </div>
+
+            <div id="calc-results" class="hidden bg-slate-900 text-white border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col gap-3">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <span class="text-xs font-bold text-slate-400 uppercase">Tu 1RM Estimado</span>
+                    <span id="res-1rm" class="text-2xl font-black text-red-500">0 kg</span>
+                </div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">Porcentajes de Carga</div>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="bg-slate-800 p-2.5 rounded-xl flex justify-between"><span class="text-slate-400">95% (Fuerza Mát):</span><span id="p95" class="font-bold text-white">0 kg</span></div>
+                    <div class="bg-slate-800 p-2.5 rounded-xl flex justify-between"><span class="text-slate-400">90% (Fuerza):</span><span id="p90" class="font-bold text-white">0 kg</span></div>
+                    <div class="bg-slate-800 p-2.5 rounded-xl flex justify-between"><span class="text-slate-400">85% (Hipertrofia):</span><span id="p85" class="font-bold text-white">0 kg</span></div>
+                    <div class="bg-slate-800 p-2.5 rounded-xl flex justify-between"><span class="text-slate-400">75% (Volumen):</span><span id="p75" class="font-bold text-white">0 kg</span></div>
+                </div>
+            </div>
         </div>
     </main>
 
+    <!-- Modal de Video -->
+    <div id="video-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col border border-slate-200">
+            <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+                <h3 id="modal-title" class="font-bold text-sm text-slate-900">Video Ejemplo</h3>
+                <button id="close-modal" class="text-slate-400 hover:text-slate-800 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="relative pt-[56.25%] bg-black">
+                <iframe id="modal-iframe" class="absolute top-0 left-0 w-full h-full" src="" title="Demo ejercicio" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
     <script>
         const workoutData = [
-            { id: 1, name: "Día 01", category: "Pectoral - Hombros - Bíceps", exercises: [
-                { id: 1, name: "Peck Deck", muscle: "PECTORAL", sets: "3 series x 15 reps" },
-                { id: 2, name: "Press en banco plano", muscle: "PECTORAL", sets: "4 series x 10 reps" }
-            ]},
-            { id: 2, name: "Día 02", category: "Espalda - Tríceps", exercises: [
-                { id: 3, name: "Jalón al pecho", muscle: "ESPALDA", sets: "4 series x 12 reps" }
-            ]}
+            { 
+                id: 0, key: "Lun", name: "Lunes", category: "Pectoral - Hombros - Tríceps", 
+                exercises: [
+                    { id: 101, name: "Press en banco plano", muscle: "PECTORAL", sets: "4 series x 10 reps", videoUrl: "https://www.youtube.com/embed/rT7DgCr-3pg" },
+                    { id: 102, name: "Peck Deck / Aperturas", muscle: "PECTORAL", sets: "3 series x 15 reps", videoUrl: "https://www.youtube.com/embed/taI4XduLpTk" },
+                    { id: 103, name: "Press Militar", muscle: "HOMBROS", sets: "4 series x 10 reps", videoUrl: "https://www.youtube.com/embed/qEwKCR5JCog" },
+                    { id: 104, name: "Extensiones en polea", muscle: "TRÍCEPS", sets: "4 series x 12 reps", videoUrl: "https://www.youtube.com/embed/2-LAMcpzODU" }
+                ]
+            },
+            { 
+                id: 1, key: "Mar", name: "Martes", category: "Espalda - Bíceps", 
+                exercises: [
+                    { id: 201, name: "Jalón al pecho", muscle: "ESPALDA", sets: "4 series x 12 reps", videoUrl: "https://www.youtube.com/embed/CAwf7n6Luuc" },
+                    { id: 202, name: "Remo con barra / polea", muscle: "ESPALDA", sets: "4 series x 10 reps", videoUrl: "https://www.youtube.com/embed/GZbfZ033f2E" },
+                    { id: 203, name: "Curl de bíceps con barra Z", muscle: "BÍCEPS", sets: "4 series x 12 reps", videoUrl: "https://www.youtube.com/embed/kwG2ipFRgfo" }
+                ]
+            },
+            { 
+                id: 2, key: "Mié", name: "Miércoles", category: "Piernas Completas", 
+                exercises: [
+                    { id: 301, name: "Sentadilla trasera", muscle: "CUÁDRICEPS", sets: "4 series x 10 reps", videoUrl: "https://www.youtube.com/embed/ultWZbUMPL8" },
+                    { id: 302, name: "Prensa 45°", muscle: "CUÁDRICEPS", sets: "3 series x 12 reps", videoUrl: "https://www.youtube.com/embed/IZxyjWCy3jg" },
+                    { id: 303, name: "Curl femoral tumbado", muscle: "ISQUIOS", sets: "4 series x 12 reps", videoUrl: "https://www.youtube.com/embed/1Tq3QdYUuHs" }
+                ]
+            },
+            { 
+                id: 3, key: "Jue", name: "Jueves", category: "Hombros - Abdomen", 
+                exercises: [
+                    { id: 401, name: "Elevaciones laterales", muscle: "HOMBROS", sets: "4 series x 15 reps", videoUrl: "https://www.youtube.com/embed/3VcKaXl35pA" },
+                    { id: 402, name: "Pájaros en polea", muscle: "HOMBROS", sets: "3 series x 15 reps", videoUrl: "https://www.youtube.com/embed/ttvfGg9d0A8" },
+                    { id: 403, name: "Crunches abdominales", muscle: "ABDOMEN", sets: "4 series x 20 reps", videoUrl: "https://www.youtube.com/embed/Xyd_fa5zoEU" }
+                ]
+            },
+            { 
+                id: 4, key: "Vie", name: "Viernes", category: "Torso - Brazos", 
+                exercises: [
+                    { id: 501, name: "Fondos en paralelas", muscle: "PECTORAL/TRÍCEPS", sets: "3 series al fallo", videoUrl: "https://www.youtube.com/embed/2z8JmcrW-As" },
+                    { id: 502, name: "Curl Martillo", muscle: "BÍCEPS", sets: "3 series x 12 reps", videoUrl: "https://www.youtube.com/embed/zC3nLlEvin4" }
+                ]
+            },
+            { 
+                id: 5, key: "Sáb", name: "Sábado", category: "Cardio - Movilidad", 
+                exercises: [
+                    { id: 601, name: "Cinta / Trote", muscle: "CARDIO", sets: "20-30 minutos", videoUrl: "https://www.youtube.com/embed/8iPEnn-ltC8" },
+                    { id: 602, name: "Estiramientos generales", muscle: "MOVILIDAD", sets: "15 minutos", videoUrl: "https://www.youtube.com/embed/Xyd_fa5zoEU" }
+                ]
+            },
+            { 
+                id: 6, key: "Dom", name: "Domingo", category: "Descanso Activo", 
+                exercises: [
+                    { id: 701, name: "Caminata suave", muscle: "RECUPERACIÓN", sets: "30 minutos", videoUrl: "https://www.youtube.com/embed/8iPEnn-ltC8" }
+                ]
+            }
         ];
 
         let selectedDay = 0;
-        let completedExercises = JSON.parse(localStorage.getItem('completed') || "{}");
+        let completedExercises = JSON.parse(localStorage.getItem('lucas_gym_completed') || "{}");
+
+        const daySelector = document.getElementById('day-selector');
+        const exerciseList = document.getElementById('exercise-list');
+        const dayTitle = document.getElementById('day-title');
+        const dayCategory = document.getElementById('day-category');
+        const progressText = document.getElementById('progress-text');
+        const progressBar = document.getElementById('progress-bar');
+        const pendingCount = document.getElementById('pending-count');
 
         function render() {
-            const selector = document.getElementById('day-selector');
-            selector.innerHTML = '';
-            
+            daySelector.innerHTML = '';
             workoutData.forEach((day, index) => {
                 const btn = document.createElement('button');
-                btn.className = `flex-shrink-0 w-20 h-20 rounded-2xl flex flex-col items-center justify-center border ${selectedDay === index ? 'bg-blue-600 border-blue-500' : 'bg-card border-slate-700'}`;
-                btn.innerHTML = `<span class="text-xs text-slate-300">${day.name}</span><span class="font-bold">${day.exercises.length}</span><span class="text-[10px] opacity-70">ejercicios</span>`;
-                btn.onclick = () => { selectedDay = index; render(); };
-                selector.appendChild(btn);
-            });
-
-            const day = workoutData[selectedDay];
-            document.getElementById('day-title').innerText = day.name;
-            
-            const list = document.getElementById('exercise-list');
-            list.innerHTML = '';
-            
-            let count = 0;
-            day.exercises.forEach(ex => {
-                const isChecked = completedExercises[`${selectedDay}-${ex.id}`];
-                if(isChecked) count++;
-                
-                const card = document.createElement('div');
-                card.className = `bg-card p-4 rounded-2xl border border-slate-700/50 flex items-center gap-4 ${isChecked ? 'opacity-60' : ''}`;
-                card.innerHTML = `
-                    <button onclick="toggle(${ex.id})" class="w-6 h-6 rounded-full border-2 border-blue-500 flex items-center justify-center">
-                        ${isChecked ? '<i class="fa-solid fa-check text-blue-500 text-xs"></i>' : ''}
-                    </button>
-                    <div>
-                        <p class="text-[10px] text-blue-400 font-bold tracking-widest">${ex.muscle}</p>
-                        <p class="font-bold">${ex.name}</p>
-                        <p class="text-sm text-slate-400">${ex.sets}</p>
-                    </div>
+                const isActive = selectedDay === index;
+                btn.className = `flex-shrink-0 w-16 py-2.5 rounded-2xl flex flex-col items-center justify-center border transition-all ${
+                    isActive 
+                        ? 'bg-red-600 border-red-600 text-white font-bold shadow-md shadow-red-600/20' 
+                        : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                }`;
+                btn.innerHTML = `
+                    <span class="text-[10px] uppercase font-bold tracking-wider">${day.key}</span>
+                    <span class="font-black text-sm">${day.exercises.length}</span>
+                    <span class="text-[9px] opacity-70">ejerc.</span>
                 `;
-                list.appendChild(card);
+                btn.onclick = () => { selectedDay = index; render(); };
+                daySelector.appendChild(btn);
             });
 
-            document.getElementById('progress-text').innerText = `${count}/${day.exercises.length}`;
-            document.getElementById('progress-bar').style.width = (count/day.exercises.length)*100 + "%";
+            const currentDay = workoutData[selectedDay];
+            dayTitle.innerText = currentDay.name.toUpperCase();
+            dayCategory.innerText = currentDay.category;
+
+            exerciseList.innerHTML = '';
+            let completedCount = 0;
+
+            currentDay.exercises.forEach(ex => {
+                const isChecked = !!completedExercises[`${selectedDay}-${ex.id}`];
+                if (isChecked) completedCount++;
+
+                const card = document.createElement('div');
+                card.className = `bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-3 transition-all ${
+                    isChecked ? 'opacity-50 bg-slate-50' : 'hover:border-red-300'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3.5 flex-1 min-w-0">
+                        <button onclick="toggleExercise(${ex.id})" class="w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
+                            isChecked ? 'border-red-600 bg-red-600 text-white' : 'border-slate-300 hover:border-red-600 text-transparent'
+                        }">
+                            <i class="fa-solid fa-check text-xs"></i>
+                        </button>
+                        <div class="truncate">
+                            <span class="text-[10px] font-bold text-red-600 tracking-widest uppercase block">${ex.muscle}</span>
+                            <p class="font-bold text-sm text-slate-900 truncate ${isChecked ? 'line-through text-slate-400' : ''}">${ex.name}</p>
+                            <span class="text-xs text-slate-500">${ex.sets}</span>
+                        </div>
+                    </div>
+                    <button onclick="openVideo('${ex.name}', '${ex.videoUrl}')" class="flex-shrink-0 w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-red-600 hover:bg-red-600 hover:text-white transition-colors">
+                        <i class="fa-solid fa-play text-xs"></i>
+                    </button>
+                `;
+                exerciseList.appendChild(card);
+            });
+
+            const total = currentDay.exercises.length;
+            const percent = total > 0 ? (completedCount / total) * 100 : 0;
+            progressText.innerText = `${completedCount}/${total}`;
+            progressBar.style.width = `${percent}%`;
+            pendingCount.innerText = `${total - completedCount} pendientes`;
+
+            localStorage.setItem('lucas_gym_completed', JSON.stringify(completedExercises));
         }
 
-        window.toggle = (id) => {
+        window.toggleExercise = (id) => {
             const key = `${selectedDay}-${id}`;
             completedExercises[key] = !completedExercises[key];
-            localStorage.setItem('completed', JSON.stringify(completedExercises));
             render();
-        }
+        };
+
+        // Modal Video
+        const videoModal = document.getElementById('video-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalIframe = document.getElementById('modal-iframe');
+        const closeModal = document.getElementById('close-modal');
+
+        window.openVideo = (title, url) => {
+            modalTitle.innerText = title;
+            modalIframe.src = url;
+            videoModal.classList.remove('hidden');
+        };
+
+        closeModal.onclick = () => {
+            videoModal.classList.add('hidden');
+            modalIframe.src = '';
+        };
+
+        videoModal.onclick = (e) => {
+            if (e.target === videoModal) {
+                videoModal.classList.add('hidden');
+                modalIframe.src = '';
+            }
+        };
+
+        // Reset
+        document.getElementById('reset-btn').onclick = () => {
+            if (confirm("¿Desmarcar todos los ejercicios de la semana?")) {
+                completedExercises = {};
+                render();
+            }
+        };
+
+        // Pestañas
+        window.switchTab = (tab) => {
+            const routineSec = document.getElementById('section-routine');
+            const calcSec = document.getElementById('section-calc');
+            const tabRoutine = document.getElementById('tab-routine');
+            const tabCalc = document.getElementById('tab-calc');
+
+            if (tab === 'routine') {
+                routineSec.classList.remove('hidden');
+                calcSec.classList.add('hidden');
+                tabRoutine.className = "flex-1 py-2 rounded-xl text-xs font-bold transition-all bg-white text-slate-900 shadow-sm";
+                tabCalc.className = "flex-1 py-2 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-900";
+            } else {
+                routineSec.classList.add('hidden');
+                calcSec.classList.remove('hidden');
+                tabCalc.className = "flex-1 py-2 rounded-xl text-xs font-bold transition-all bg-white text-slate-900 shadow-sm";
+                tabRoutine.className = "flex-1 py-2 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-900";
+            }
+        };
+
+        // Calculadora 1RM
+        window.calculate1RM = () => {
+            const weight = parseFloat(document.getElementById('calc-weight').value);
+            const reps = parseInt(document.getElementById('calc-reps').value);
+
+            if (!weight || !reps || weight <= 0 || reps <= 0) {
+                alert("Por favor ingresá valores válidos.");
+                return;
+            }
+
+            const rm = Math.round(weight * (1 + reps / 30));
+            document.getElementById('res-1rm').innerText = `${rm} kg`;
+            document.getElementById('p95').innerText = `${Math.round(rm * 0.95)} kg`;
+            document.getElementById('p90').innerText = `${Math.round(rm * 0.90)} kg`;
+            document.getElementById('p85').innerText = `${Math.round(rm * 0.85)} kg`;
+            document.getElementById('p75').innerText = `${Math.round(rm * 0.75)} kg`;
+
+            document.getElementById('calc-results').classList.remove('hidden');
+        };
 
         render();
     </script>
 </body>
 </html>
+
