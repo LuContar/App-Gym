@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lucas GYM</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -39,12 +40,10 @@
                 </div>
             </div>
             
-            <div class="flex items-center gap-2">
-                <button id="reset-btn" class="text-xs font-semibold text-slate-600 hover:text-red-600 transition-colors flex items-center gap-1.5 bg-slate-100 hover:bg-red-50 border border-slate-200 px-2.5 py-1.5 rounded-xl">
-                    <i class="fa-solid fa-rotate-right text-slate-500"></i>
-                    <span>Reset</span>
-                </button>
-            </div>
+            <button id="reset-btn" class="text-xs font-semibold text-slate-600 hover:text-red-600 transition-colors flex items-center gap-1.5 bg-slate-100 hover:bg-red-50 border border-slate-200 px-2.5 py-1.5 rounded-xl">
+                <i class="fa-solid fa-rotate-right text-slate-500"></i>
+                <span>Reset</span>
+            </button>
         </header>
 
         <!-- Navegación de Pestañas -->
@@ -53,7 +52,7 @@
                 <i class="fa-solid fa-dumbbell mr-1 text-red-600"></i> Rutina
             </button>
             <button id="tab-calc" onclick="switchTab('calc')" class="flex-1 py-2 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-900">
-                <i class="fa-solid fa-calculator mr-1"></i> Calc Peso (1RM)
+                <i class="fa-solid fa-chart-line mr-1"></i> Proyección de Peso
             </button>
         </div>
 
@@ -96,41 +95,73 @@
             </section>
         </div>
 
-        <!-- SECCIÓN 2: CALCULADORA DE PESO (1RM) -->
+        <!-- SECCIÓN 2: CALCULADORA DE PROYECCIÓN DE PESO -->
         <div id="section-calc" class="hidden flex flex-col gap-4">
             <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm flex flex-col gap-4">
                 <div>
-                    <h3 class="font-bold text-slate-900 text-lg">Calculadora de 1RM</h3>
-                    <p class="text-xs text-slate-500">Calculá tu Repetición Máxima estimada (Epley) y tus porcentajes de carga.</p>
+                    <h3 class="font-black text-slate-900 text-xl">Calculadora de Proyección de Peso</h3>
+                    <p class="text-xs text-slate-500 mt-1">Ingresá tu peso actual y tu objetivo para calcular tu gráfico de proyección y metas diarias.</p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Peso Levantado (kg)</label>
-                        <input id="calc-weight" type="number" placeholder="Ej: 80" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold focus:outline-none focus:border-red-600">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Peso Actual (kg)</label>
+                        <input id="calc-current" type="number" placeholder="Ej: 94" value="94" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold focus:outline-none focus:border-red-600">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Repeticiones</label>
-                        <input id="calc-reps" type="number" placeholder="Ej: 8" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold focus:outline-none focus:border-red-600">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Peso Objetivo (kg)</label>
+                        <input id="calc-target" type="number" placeholder="Ej: 73.7" value="73.7" step="0.1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold focus:outline-none focus:border-red-600">
                     </div>
                 </div>
 
-                <button onclick="calculate1RM()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-3 rounded-xl transition-colors shadow-md shadow-red-600/20">
-                    Calcular Cargas
+                <button onclick="calculateProjection()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-3 rounded-xl transition-colors shadow-md shadow-red-600/20">
+                    Calcular Proyección
                 </button>
             </div>
 
-            <div id="calc-results" class="hidden bg-slate-900 text-white border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col gap-3">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Tu 1RM Estimado</span>
-                    <span id="res-1rm" class="text-2xl font-black text-red-500">0 kg</span>
+            <!-- Gráfico y Objetivos -->
+            <div id="projection-results" class="bg-slate-900 text-white border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col gap-4">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Curva de Pérdida</span>
+                    <span id="target-badge" class="text-xs font-extrabold text-red-500 bg-red-500/10 px-2.5 py-1 rounded-lg border border-red-500/20">Objetivo: 73.7 kg</span>
                 </div>
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">Porcentajes de Carga</div>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                    <div class="bg-slate-800 p-2.5 rounded-xl flex justify-between"><span class="text-slate-400">95% (Fuerza Mát):</span><span id="p95" class="font-bold text-white">0 kg</span></div>
-                    <div class="bg-slate-800 p-2.5 rounded-xl flex justify-between"><span class="text-slate-400">90% (Fuerza):</span><span id="p90" class="font-bold text-white">0 kg</span></div>
-                    <div class="bg-slate-800 p-2.5 rounded-xl flex justify-between"><span class="text-slate-400">85% (Hipertrofia):</span><span id="p85" class="font-bold text-white">0 kg</span></div>
-                    <div class="bg-slate-800 p-2.5 rounded-xl flex justify-between"><span class="text-slate-400">75% (Volumen):</span><span id="p75" class="font-bold text-white">0 kg</span></div>
+
+                <!-- Gráfico Chart.js -->
+                <div class="relative w-full h-48 my-1">
+                    <canvas id="weightChart"></canvas>
+                </div>
+
+                <!-- Tabla Objetivos Diarios -->
+                <div class="flex flex-col gap-2 mt-2">
+                    <div class="grid grid-cols-3 text-[10px] font-bold text-slate-400 uppercase border-b border-slate-800 pb-1 px-1">
+                        <span>Objetivo Diario</span>
+                        <span class="text-center">Cantidad</span>
+                        <span class="text-right">Unidad</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 text-xs p-2.5 rounded-xl bg-slate-800/80 items-center font-medium">
+                        <span class="text-slate-200">Agua diaria</span>
+                        <span id="res-water" class="text-center font-bold text-white">3.29</span>
+                        <span class="text-right text-slate-400">Litros</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 text-xs p-2.5 rounded-xl bg-slate-800/40 items-center font-medium">
+                        <span class="text-slate-200">Pasos diarios</span>
+                        <span id="res-steps" class="text-center font-bold text-white">9400</span>
+                        <span class="text-right text-slate-400">Pasos</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 text-xs p-2.5 rounded-xl bg-slate-800/80 items-center font-medium">
+                        <span class="text-slate-200">Proteína diaria</span>
+                        <span id="res-protein" class="text-center font-bold text-white">188</span>
+                        <span class="text-right text-slate-400">Gramos</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 text-xs p-2.5 rounded-xl bg-slate-800/40 items-center font-medium">
+                        <span class="text-slate-200">Fibra diaria</span>
+                        <span id="res-fiber" class="text-center font-bold text-white">70.5</span>
+                        <span class="text-right text-slate-400">Gramos</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -210,6 +241,7 @@
 
         let selectedDay = 0;
         let completedExercises = JSON.parse(localStorage.getItem('lucas_gym_completed') || "{}");
+        let myChart = null;
 
         const daySelector = document.getElementById('day-selector');
         const exerciseList = document.getElementById('exercise-list');
@@ -338,27 +370,83 @@
                 calcSec.classList.remove('hidden');
                 tabCalc.className = "flex-1 py-2 rounded-xl text-xs font-bold transition-all bg-white text-slate-900 shadow-sm";
                 tabRoutine.className = "flex-1 py-2 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-slate-900";
+                calculateProjection();
             }
         };
 
-        // Calculadora 1RM
-        window.calculate1RM = () => {
-            const weight = parseFloat(document.getElementById('calc-weight').value);
-            const reps = parseInt(document.getElementById('calc-reps').value);
+        // Calculadora de Proyección de Peso
+        window.calculateProjection = () => {
+            const current = parseFloat(document.getElementById('calc-current').value);
+            const target = parseFloat(document.getElementById('calc-target').value);
 
-            if (!weight || !reps || weight <= 0 || reps <= 0) {
-                alert("Por favor ingresá valores válidos.");
+            if (!current || !target || current <= 0 || target <= 0) {
+                alert("Ingresá valores válidos.");
                 return;
             }
 
-            const rm = Math.round(weight * (1 + reps / 30));
-            document.getElementById('res-1rm').innerText = `${rm} kg`;
-            document.getElementById('p95').innerText = `${Math.round(rm * 0.95)} kg`;
-            document.getElementById('p90').innerText = `${Math.round(rm * 0.90)} kg`;
-            document.getElementById('p85').innerText = `${Math.round(rm * 0.85)} kg`;
-            document.getElementById('p75').innerText = `${Math.round(rm * 0.75)} kg`;
+            document.getElementById('target-badge').innerText = `Objetivo: ${target} kg`;
 
-            document.getElementById('calc-results').classList.remove('hidden');
+            // Estimaciones
+            document.getElementById('res-water').innerText = (current * 0.035).toFixed(2);
+            document.getElementById('res-steps').innerText = Math.round(current * 100);
+            document.getElementById('res-protein').innerText = Math.round(current * 2);
+            document.getElementById('res-fiber').innerText = (current * 0.75).toFixed(1);
+
+            // Generar datos del gráfico (bajada moderada a 0.5kg por semana)
+            const diff = current - target;
+            const weeks = Math.max(4, Math.ceil(Math.abs(diff) / 0.5));
+            const labels = [];
+            const dataPoints = [];
+
+            for (let i = 0; i <= weeks; i += Math.ceil(weeks / 4)) {
+                labels.push(`${i}`);
+                const w = current - ((diff / weeks) * i);
+                dataPoints.push(w.toFixed(1));
+            }
+
+            // Renderizar Gráfico
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Peso (kg)',
+                        data: dataPoints,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#3b82f6',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            title: { display: true, text: 'Semanas →', color: '#64748b', font: { size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            title: { display: true, text: 'Peso (kg) ↑', color: '#64748b', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
         };
 
         render();
