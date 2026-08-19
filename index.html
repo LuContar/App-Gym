@@ -142,8 +142,21 @@
                     <canvas id="weightChart"></canvas>
                 </div>
 
+                <!-- Balance Calórico -->
+                <div class="bg-slate-800/90 border border-slate-700/80 p-3.5 rounded-2xl flex flex-col gap-2">
+                    <div class="text-[10px] font-bold text-red-400 uppercase tracking-wider">Balance Calórico Diario Recomendado</div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-300">Meta Calórica Diaria (Déficit):</span>
+                        <span id="res-target-calories" class="font-black text-white text-sm">2100 kcal</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs border-t border-slate-700/60 pt-2">
+                        <span class="text-slate-400">Quemado en Entreno de Hoy:</span>
+                        <span id="res-burned-calories" class="font-bold text-red-500">0 kcal</span>
+                    </div>
+                </div>
+
                 <!-- Tabla Objetivos Diarios -->
-                <div class="flex flex-col gap-2 mt-2">
+                <div class="flex flex-col gap-2 mt-1">
                     <div class="grid grid-cols-3 text-[10px] font-bold text-slate-400 uppercase border-b border-slate-800 pb-1 px-1">
                         <span>Objetivo Diario</span>
                         <span class="text-center">Cantidad</span>
@@ -220,40 +233,47 @@
                 id: 0, key: "Lun", name: "Lunes", category: "Piernas & Cardio", 
                 exercises: [
                     { id: 101, name: "Cinta 15 minutos", muscle: "CARDIO", type: "cardio", targetMin: 15, videoUrl: "https://www.youtube.com/embed/8iPEnn-ltC8" },
-                    { id: 102, name: "Sentadillas con barra", muscle: "CUÁDRICEPS", type: "strength", targetSets: "3 series (6-8 reps)", videoUrl: "https://www.youtube.com/embed/ultWZbUMPL8" },
-                    { id: 103, name: "Estocadas con mancuernas", muscle: "PIERNAS", type: "strength", targetSets: "3 series (10-15 reps)", videoUrl: "https://www.youtube.com/embed/D7KaRcUTQeE" },
-                    { id: 104, name: "Prensa de piernas", muscle: "CUÁDRICEPS", type: "strength", targetSets: "3 series (8-10 reps)", videoUrl: "https://www.youtube.com/embed/IZxyjWCy3jg" },
-                    { id: 105, name: "Elevación de pantorrillas en step", muscle: "GEMELOS", type: "strength", targetSets: "3 series (12-15 reps)", videoUrl: "https://www.youtube.com/embed/YyvSfVjQeL0" },
+                    { id: 102, name: "Sentadillas con barra", muscle: "CUÁDRICEPS", type: "strength", numSets: 3, targetSets: "3 series (6-8 reps)", videoUrl: "https://www.youtube.com/embed/ultWZbUMPL8" },
+                    { id: 103, name: "Estocadas con mancuernas", muscle: "PIERNAS", type: "strength", numSets: 3, targetSets: "3 series (10-15 reps)", videoUrl: "https://www.youtube.com/embed/D7KaRcUTQeE" },
+                    { id: 104, name: "Prensa de piernas", muscle: "CUÁDRICEPS", type: "strength", numSets: 3, targetSets: "3 series (8-10 reps)", videoUrl: "https://www.youtube.com/embed/IZxyjWCy3jg" },
+                    { id: 105, name: "Elevación de pantorrillas en step", muscle: "GEMELOS", type: "strength", numSets: 3, targetSets: "3 series (12-15 reps)", videoUrl: "https://www.youtube.com/embed/YyvSfVjQeL0" },
                     { id: 106, name: "Cinta 30 minutos", muscle: "CARDIO", type: "cardio", targetMin: 30, videoUrl: "https://www.youtube.com/embed/8iPEnn-ltC8" }
                 ]
             },
             { 
-                id: 1, key: "Mar", name: "Martes", category: "Espalda - Bíceps", 
+                id: 1, key: "Mar", name: "Martes", category: "Espalda & Bíceps", 
                 exercises: [
-                    { id: 201, name: "Jalón al pecho", muscle: "ESPALDA", type: "strength", targetSets: "3 series (10-12 reps)", videoUrl: "https://www.youtube.com/embed/CAwf7n6Luuc" },
-                    { id: 202, name: "Remo con barra", muscle: "ESPALDA", type: "strength", targetSets: "3 series (8-10 reps)", videoUrl: "https://www.youtube.com/embed/GZbfZ033f2E" },
-                    { id: 203, name: "Curl de bíceps con barra Z", muscle: "BÍCEPS", type: "strength", targetSets: "3 series (10-12 reps)", videoUrl: "https://www.youtube.com/embed/kwG2ipFRgfo" }
+                    { id: 201, name: "Cinta 15 minutos", muscle: "CARDIO", type: "cardio", targetMin: 15, videoUrl: "https://www.youtube.com/embed/8iPEnn-ltC8" },
+                    { id: 202, name: "Calentamiento: Jalones a la cara", muscle: "HOMBRO POST / ESPALDA", type: "strength", numSets: 2, targetSets: "2 series (10-15 reps)", videoUrl: "https://www.youtube.com/embed/sVWAZaYydRo" },
+                    { id: 203, name: "Calentamiento: Jalón de escápula", muscle: "ESPALDA / HOMBROS", type: "strength", numSets: 2, targetSets: "2 series (10-15 reps)", videoUrl: "https://www.youtube.com/embed/CAwf7n6Luuc" },
+                    { id: 204, name: "Jalones al pecho con barra", muscle: "ESPALDA", type: "strength", numSets: 3, targetSets: "3 series (10-12 reps)", videoUrl: "https://www.youtube.com/embed/W2x6zP9k7SM" },
+                    { id: 205, name: "Remo con mancuerna / Serrucho banco inclinado", muscle: "ESPALDA", type: "strength", numSets: 3, targetSets: "3 series (8-12 reps)", videoUrl: "https://www.youtube.com/embed/evJBZ_8-2ik" },
+                    { id: 206, name: "Bíceps W en banco", muscle: "BÍCEPS", type: "strength", numSets: 3, targetSets: "3 series (10-12 reps)", videoUrl: "https://www.youtube.com/embed/kwG2ipFRgfo" },
+                    { id: 207, name: "Curl invertido con barra Z", muscle: "ANTEBRAZO / BÍCEPS", type: "strength", numSets: 3, targetSets: "3 series (8-12 reps)", videoUrl: "https://www.youtube.com/embed/kwG2ipFRgfo" },
+                    { id: 208, name: "Wide grip curl bar Z", muscle: "BÍCEPS", type: "strength", numSets: 3, targetSets: "3 series (8-12 reps)", videoUrl: "https://www.youtube.com/embed/kwG2ipFRgfo" },
+                    { id: 209, name: "Pullover con mancuerna", muscle: "ESPALDA", type: "strength", numSets: 1, targetSets: "1 serie (al fallo)", videoUrl: "https://www.youtube.com/embed/Datv2L6t3-4" },
+                    { id: 210, name: "Cinta 30 minutos", muscle: "CARDIO", type: "cardio", targetMin: 30, videoUrl: "https://www.youtube.com/embed/8iPEnn-ltC8" }
                 ]
             },
             { 
                 id: 2, key: "Mié", name: "Miércoles", category: "Pecho - Hombros", 
                 exercises: [
-                    { id: 301, name: "Press en banco plano", muscle: "PECTORAL", type: "strength", targetSets: "3 series (8-10 reps)", videoUrl: "https://www.youtube.com/embed/rT7DgCr-3pg" },
-                    { id: 302, name: "Press Militar", muscle: "HOMBROS", type: "strength", targetSets: "3 series (8-10 reps)", videoUrl: "https://www.youtube.com/embed/qEwKCR5JCog" }
+                    { id: 301, name: "Press en banco plano", muscle: "PECTORAL", type: "strength", numSets: 3, targetSets: "3 series (8-10 reps)", videoUrl: "https://www.youtube.com/embed/rT7DgCr-3pg" },
+                    { id: 302, name: "Press Militar", muscle: "HOMBROS", type: "strength", numSets: 3, targetSets: "3 series (8-10 reps)", videoUrl: "https://www.youtube.com/embed/qEwKCR5JCog" }
                 ]
             },
             { 
                 id: 3, key: "Jue", name: "Jueves", category: "Hombros - Abdomen", 
                 exercises: [
-                    { id: 401, name: "Elevaciones laterales", muscle: "HOMBROS", type: "strength", targetSets: "3 series (12-15 reps)", videoUrl: "https://www.youtube.com/embed/3VcKaXl35pA" },
-                    { id: 402, name: "Crunches abdominales", muscle: "ABDOMEN", type: "strength", targetSets: "3 series (15-20 reps)", videoUrl: "https://www.youtube.com/embed/Xyd_fa5zoEU" }
+                    { id: 401, name: "Elevaciones laterales", muscle: "HOMBROS", type: "strength", numSets: 3, targetSets: "3 series (12-15 reps)", videoUrl: "https://www.youtube.com/embed/3VcKaXl35pA" },
+                    { id: 402, name: "Crunches abdominales", muscle: "ABDOMEN", type: "strength", numSets: 3, targetSets: "3 series (15-20 reps)", videoUrl: "https://www.youtube.com/embed/Xyd_fa5zoEU" }
                 ]
             },
             { 
                 id: 4, key: "Vie", name: "Viernes", category: "Torso - Brazos", 
                 exercises: [
-                    { id: 501, name: "Fondos en paralelas", muscle: "PECTORAL/TRÍCEPS", type: "strength", targetSets: "3 series (al fallo)", videoUrl: "https://www.youtube.com/embed/2z8JmcrW-As" },
-                    { id: 502, name: "Curl Martillo", muscle: "BÍCEPS", type: "strength", targetSets: "3 series (10-12 reps)", videoUrl: "https://www.youtube.com/embed/zC3nLlEvin4" }
+                    { id: 501, name: "Fondos en paralelas", muscle: "PECTORAL/TRÍCEPS", type: "strength", numSets: 3, targetSets: "3 series (al fallo)", videoUrl: "https://www.youtube.com/embed/2z8JmcrW-As" },
+                    { id: 502, name: "Curl Martillo", muscle: "BÍCEPS", type: "strength", numSets: 3, targetSets: "3 series (10-12 reps)", videoUrl: "https://www.youtube.com/embed/zC3nLlEvin4" }
                 ]
             },
             { 
@@ -290,7 +310,8 @@
                 const minutes = parseFloat(setsData[`${dayIndex}-${ex.id}-time`]) || 0;
                 totalCalories = minutes * 8;
             } else {
-                for (let s = 1; s <= 3; s++) {
+                const totalSets = ex.numSets || 3;
+                for (let s = 1; s <= totalSets; s++) {
                     const weight = parseFloat(setsData[`${dayIndex}-${ex.id}-s${s}-w`]) || 0;
                     const reps = parseFloat(setsData[`${dayIndex}-${ex.id}-s${s}-r`]) || 0;
                     
@@ -363,7 +384,8 @@
                     `;
                 } else {
                     let setsRowsHtml = '';
-                    for (let s = 1; s <= 3; s++) {
+                    const numSets = ex.numSets || 3;
+                    for (let s = 1; s <= numSets; s++) {
                         const weightVal = setsData[`${selectedDay}-${ex.id}-s${s}-w`] || '';
                         const repsVal = setsData[`${selectedDay}-${ex.id}-s${s}-r`] || '';
 
@@ -462,14 +484,14 @@
                     const time = setsData[`${selectedDay}-${ex.id}-time`] || 0;
                     detailText = `<strong>Tiempo:</strong> ${time} min`;
                 } else {
-                    const s1w = setsData[`${selectedDay}-${ex.id}-s1-w`] || 0;
-                    const s1r = setsData[`${selectedDay}-${ex.id}-s1-r`] || 0;
-                    const s2w = setsData[`${selectedDay}-${ex.id}-s2-w`] || 0;
-                    const s2r = setsData[`${selectedDay}-${ex.id}-s2-r`] || 0;
-                    const s3w = setsData[`${selectedDay}-${ex.id}-s3-w`] || 0;
-                    const s3r = setsData[`${selectedDay}-${ex.id}-s3-r`] || 0;
-
-                    detailText = `S1: ${s1w}kg x ${s1r} reps | S2: ${s2w}kg x ${s2r} reps | S3: ${s3w}kg x ${s3r} reps`;
+                    const numSets = ex.numSets || 3;
+                    let setsArray = [];
+                    for (let s = 1; s <= numSets; s++) {
+                        const w = setsData[`${selectedDay}-${ex.id}-s${s}-w`] || 0;
+                        const r = setsData[`${selectedDay}-${ex.id}-s${s}-r`] || 0;
+                        setsArray.push(`S${s}: ${w}kg x ${r} reps`);
+                    }
+                    detailText = setsArray.join(' | ');
                 }
 
                 const item = document.createElement('div');
@@ -556,7 +578,7 @@
             }
         };
 
-        // Calculadora de Proyección de Peso
+        // Calculadora de Proyección de Peso y Calorías
         window.calculateProjection = () => {
             const current = parseFloat(document.getElementById('calc-current').value);
             const target = parseFloat(document.getElementById('calc-target').value);
@@ -567,6 +589,20 @@
             }
 
             document.getElementById('target-badge').innerText = `Objetivo: ${target} kg`;
+
+            const bmr = (10 * current) + (6.25 * 175) - (5 * 30) + 5;
+            const tdee = bmr * 1.375;
+            const targetCalories = Math.round(tdee - 500);
+
+            document.getElementById('res-target-calories').innerText = `${targetCalories} kcal`;
+
+            const currentDay = workoutData[selectedDay];
+            let dayTotalKcal = 0;
+            currentDay.exercises.forEach(ex => {
+                dayTotalKcal += parseFloat(calculateCalories(selectedDay, ex));
+            });
+
+            document.getElementById('res-burned-calories').innerText = `${dayTotalKcal.toFixed(1)} kcal`;
 
             document.getElementById('res-water').innerText = (current * 0.035).toFixed(2);
             document.getElementById('res-steps').innerText = Math.round(current * 100);
