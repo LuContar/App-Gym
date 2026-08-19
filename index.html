@@ -6,6 +6,7 @@
     <title>Lucas GYM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -40,10 +41,16 @@
                 </div>
             </div>
             
-            <button id="reset-btn" class="text-xs font-semibold text-slate-600 hover:text-red-600 transition-colors flex items-center gap-1.5 bg-slate-100 hover:bg-red-50 border border-slate-200 px-2.5 py-1.5 rounded-xl">
-                <i class="fa-solid fa-rotate-right text-slate-500"></i>
-                <span>Reset</span>
-            </button>
+            <div class="flex items-center gap-1.5">
+                <button id="pdf-btn" onclick="exportPDF()" class="text-xs font-semibold text-slate-700 hover:text-red-600 transition-colors flex items-center gap-1 bg-slate-100 hover:bg-red-50 border border-slate-200 px-2 py-1.5 rounded-xl">
+                    <i class="fa-solid fa-file-pdf text-red-600"></i>
+                    <span>PDF</span>
+                </button>
+                <button id="reset-btn" class="text-xs font-semibold text-slate-600 hover:text-red-600 transition-colors flex items-center gap-1 bg-slate-100 hover:bg-red-50 border border-slate-200 px-2 py-1.5 rounded-xl">
+                    <i class="fa-solid fa-rotate-right text-slate-400"></i>
+                    <span>Reset</span>
+                </button>
+            </div>
         </header>
 
         <!-- Navegación de Pestañas -->
@@ -171,6 +178,27 @@
         </div>
     </main>
 
+    <!-- Template oculto para exportar PDF -->
+    <div id="pdf-template" class="hidden p-6 bg-white text-slate-900 font-sans">
+        <div class="flex justify-between items-center border-b-2 border-red-600 pb-3 mb-4">
+            <div>
+                <h1 class="text-2xl font-black text-slate-900">Lucas <span class="text-red-600">GYM</span></h1>
+                <p class="text-xs text-slate-500">Reporte Diario de Entrenamiento</p>
+            </div>
+            <div class="text-right">
+                <h2 id="pdf-day" class="text-xl font-bold text-slate-800">LUNES</h2>
+                <span id="pdf-date" class="text-xs text-slate-500"></span>
+            </div>
+        </div>
+
+        <div id="pdf-body" class="flex flex-col gap-4"></div>
+
+        <div class="mt-6 pt-4 border-t border-slate-200 flex justify-between text-xs font-bold text-slate-700">
+            <span>Total Quemado Estimado:</span>
+            <span id="pdf-total-kcal" class="text-red-600">0 kcal</span>
+        </div>
+    </div>
+
     <!-- Modal de Video -->
     <div id="video-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col border border-slate-200">
@@ -255,13 +283,11 @@
         const progressBar = document.getElementById('progress-bar');
         const pendingCount = document.getElementById('pending-count');
 
-        // Cálculo de calorías por ejercicio
         function calculateCalories(dayIndex, ex) {
             let totalCalories = 0;
 
             if (ex.type === 'cardio') {
                 const minutes = parseFloat(setsData[`${dayIndex}-${ex.id}-time`]) || 0;
-                // Estimación promedio de trote/caminata rápida en cinta (~8 kcal/min)
                 totalCalories = minutes * 8;
             } else {
                 for (let s = 1; s <= 3; s++) {
@@ -387,7 +413,6 @@
                         </div>
                     </div>
 
-                    <!-- Detalle de Series / Tiempo -->
                     <div class="pt-2 border-t border-slate-100 flex flex-col gap-1.5">
                         ${detailContentHtml}
                     </div>
@@ -415,6 +440,66 @@
             const key = `${selectedDay}-${id}`;
             completedExercises[key] = !completedExercises[key];
             render();
+        };
+
+        // Exportación PDF
+        window.exportPDF = () => {
+            const currentDay = workoutData[selectedDay];
+            document.getElementById('pdf-day').innerText = currentDay.name.toUpperCase();
+            document.getElementById('pdf-date').innerText = new Date().toLocaleDateString('es-AR');
+
+            const pdfBody = document.getElementById('pdf-body');
+            pdfBody.innerHTML = '';
+            let totalKcal = 0;
+
+            currentDay.exercises.forEach(ex => {
+                const kcal = calculateCalories(selectedDay, ex);
+                totalKcal += parseFloat(kcal);
+                const isDone = !!completedExercises[`${selectedDay}-${ex.id}`];
+
+                let detailText = '';
+                if (ex.type === 'cardio') {
+                    const time = setsData[`${selectedDay}-${ex.id}-time`] || 0;
+                    detailText = `<strong>Tiempo:</strong> ${time} min`;
+                } else {
+                    const s1w = setsData[`${selectedDay}-${ex.id}-s1-w`] || 0;
+                    const s1r = setsData[`${selectedDay}-${ex.id}-s1-r`] || 0;
+                    const s2w = setsData[`${selectedDay}-${ex.id}-s2-w`] || 0;
+                    const s2r = setsData[`${selectedDay}-${ex.id}-s2-r`] || 0;
+                    const s3w = setsData[`${selectedDay}-${ex.id}-s3-w`] || 0;
+                    const s3r = setsData[`${selectedDay}-${ex.id}-s3-r`] || 0;
+
+                    detailText = `S1: ${s1w}kg x ${s1r} reps | S2: ${s2w}kg x ${s2r} reps | S3: ${s3w}kg x ${s3r} reps`;
+                }
+
+                const item = document.createElement('div');
+                item.className = 'p-3 border border-slate-200 rounded-lg text-xs';
+                item.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-slate-800">${ex.name} (${ex.muscle}) - ${isDone ? 'COMPLETADO' : 'PENDIENTE'}</span>
+                        <span class="font-bold text-red-600">${kcal} kcal</span>
+                    </div>
+                    <p class="text-slate-600">${detailText}</p>
+                `;
+                pdfBody.appendChild(item);
+            });
+
+            document.getElementById('pdf-total-kcal').innerText = `${totalKcal.toFixed(1)} kcal`;
+
+            const element = document.getElementById('pdf-template');
+            element.classList.remove('hidden');
+
+            const opt = {
+                margin:       0.5,
+                filename:     `LucasGYM_${currentDay.name}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.classList.add('hidden');
+            });
         };
 
         // Modal Video
@@ -483,13 +568,11 @@
 
             document.getElementById('target-badge').innerText = `Objetivo: ${target} kg`;
 
-            // Estimaciones
             document.getElementById('res-water').innerText = (current * 0.035).toFixed(2);
             document.getElementById('res-steps').innerText = Math.round(current * 100);
             document.getElementById('res-protein').innerText = Math.round(current * 2);
             document.getElementById('res-fiber').innerText = (current * 0.75).toFixed(1);
 
-            // Generar datos del gráfico
             const diff = current - target;
             const weeks = Math.max(4, Math.ceil(Math.abs(diff) / 0.5));
             const labels = [];
@@ -501,7 +584,6 @@
                 dataPoints.push(w.toFixed(1));
             }
 
-            // Renderizar Gráfico
             const ctx = document.getElementById('weightChart').getContext('2d');
             
             if (myChart) {
